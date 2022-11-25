@@ -1,0 +1,24 @@
+Original nslookup.py
+    import subprocess
+
+    domain_name = input("Enter the domain name: ")
+
+    command = "nslookup {}".format(domain_name)
+
+    response = subprocess.check_output(command, shell=True, encoding="UTF-8")
+
+    print(response)
+
+The nslookup.py script has one glaring fault, it is susceptible to command injection. 
+The problem is that we with a simple ";" we can inject our own commands and this can be used on a server maliciously. An example:
+
+"Enter the domain name: google.com ; ls -la"
+
+we now give the script what it wants, a domain, but inject the os command "ls -la" which would let us list all files on the server.
+
+the solution to this issue would be to disallow multiple arguments provided to the script. One way to do this is to simply split the command and only use the first argument always.
+we can do this by using the string method ".split(';')" and only retrieving the first entry [0] in the newly formed list. The solution:
+
+modify the command variable to be:
+
+    command = "nslookup {}".format(domain_name).split(';')[0]
